@@ -1,0 +1,9 @@
+scripts are called in alphabetic order (echo $dir/* to check the order)
+sysinit   - scripts in here are called before anything else
+boot      - scripts in here are alled after sysinit
+default   - scripts in here are called after boot
+post      - scripts in here are the last scripts to be called during boot
+
+powerdown - scripts in here are called before poweroff / reboot
+poweroff  - called at poweroff
+reboot    - called at reboot

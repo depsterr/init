@@ -3,6 +3,7 @@
 
 # Shared code between boot/shutdown.
 . /usr/lib/init/rc.lib
+. /etc/rc.conf
 
 log "Welcome to KISS!"
 

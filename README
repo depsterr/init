@@ -1,9 +1,1 @@
-|/
-|\ISS                                                           https://k1ss.org
-________________________________________________________________________________
-
-
-Init Framework
-________________________________________________________________________________
-
-KISS' portable init framework.
+ushi is an init system forked from kisslinux init system
