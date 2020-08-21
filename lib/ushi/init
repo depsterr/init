@@ -1,0 +1,47 @@
+#!/bin/sh
+[ $$ -eq 1 ] || exit 1
+[ -f /etc/rc.conf ] . /etc/ushi.conf
+
+sos() {
+    printf "Encountered an error during the boot process, dropping to shell.
+When you're done run exit to continue the boot process.
+"
+    /bin/sh
+}
+
+run_levels() {
+    fail="$1"
+    shift
+    for level in $*; do
+        for file in "/usr/lib/ushi/enabled/$level"/*; do
+            [ -x "$file" ] && {
+                log "Running service ${file##*/}"
+                "$file" || { 
+                    log "FAILED"
+                    "$fail"
+                }
+            }
+        done
+    done
+}
+
+poweroff() {
+    run_levels continue powerdown poweroff
+}
+
+reboot() {
+    run_levels continue powerdown reboot
+}
+
+boot() {
+    run_levels sos sysinit boot default post
+}
+
+boot
+
+trap poweroff USR1
+trap reboot INT
+
+while :; do
+    sleep 86400
+done

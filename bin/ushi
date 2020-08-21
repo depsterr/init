@@ -1,0 +1,59 @@
+#!/bin/sh
+die() {
+    printf '%s: %s\n' "${0##*/}" "$*"
+    exit 1
+}
+
+case "$1" in
+    start)
+        [ "$(id -u)" -eq 0 ] && die "Not running as root"
+        [ "$2" ] || die "Not enough args."
+        [ -x "/usr/lib/ushi/services/$2" ] || die "Service '$2' does not exist."
+        "/usr/lib/ushi/services/$2" start
+        exit "$?"
+        ;;
+    stop)
+        [ "$(id -u)" -eq 0 ] && die "Not running as root"
+        [ "$2" ] || die "Not enough args."
+        [ -x "/usr/lib/ushi/services/$2" ] || die "Service '$2' does not exist."
+        "/usr/lib/ushi/services/$2" stop
+        exit "$?"
+        ;;
+    restart)
+        [ "$(id -u)" -eq 0 ] && die "Not running as root"
+        [ "$2" ] || die "Not enough args."
+        [ -x "/usr/lib/ushi/services/$2" ] || die "Service '$2' does not exist."
+        "/usr/lib/ushi/services/$2" start
+        "/usr/lib/ushi/services/$2" stop
+        exit "$?"
+        ;;
+    enable)
+        [ "$(id -u)" -eq 0 ] && die "Not running as root"
+        [ "$3" ] || die "Not enough args."
+        [ -d "/usr/lib/ushi/enabled/$3" ] || die "Runlevel '$3' does not exist."
+        [ -x "/usr/lib/ushi/services/$2" ] || die "Service '$2' does not exist."
+        ln -sf "/usr/lib/ushi/services/$2" "/usr/lib/ushi/enabled/$3/$2"
+        exit "$?"
+        ;;
+    disable)
+        [ "$(id -u)" -eq 0 ] && die "Not running as root"
+        [ "$3" ] || die "Not enough args."
+        [ -h "/usr/lib/ushi/enabled/$3/$2" ] || die "Service '$2' not in runlevel '$3'."
+        rm -f "/usr/lib/ushi/enabled/$3/$2"
+        exit "$?"
+        ;;
+    list)
+        echo /usr/lib/ushi/services/*
+        exit 0
+        ;;
+    *)
+    echo "${0##*/}: Usage: 
+  start   <service>
+  stop    <service>
+  restart <service>
+  enable  <service> <runlevel>
+  disable <service> <runlevel>
+  list"
+        exit 1
+        ;;
+esac
