@@ -12,6 +12,26 @@ run_level() {
             log "Starting service ${file##*/}"
             "$file" "$1" || { 
                 log "FAILED"
+                [ "$level" = sysinit ] && sos
+            }
+        }
+    done
+}
+
+# 1: runlevel
+# 2: command
+reverse_level() {
+    level="$1"
+    cmd="$2"
+    unset files
+    for file in "/usr/lib/ushi/runlevels/$level"/*; do
+        files="$file $files"
+    done
+    for file in $files; do
+        [ -x "$file" ] && {
+            log "Starting service ${file##*/}"
+            "$file" "$1" || { 
+                log "FAILED"
                 [ "$level" = boot ] && sos
             }
         }
@@ -24,13 +44,15 @@ boot() {
 }
 
 _reboot() {
-    run_level boot stop
+    reverse_level sysinit stop
+    reverse_level boot stop
     run_level powerdown start
     run_level reboot start
 }
 
 _poweroff() {
-    run_level boot stop
+    reverse_level sysinit stop
+    reverse_level boot stop
     run_level powerdown start
     run_level poweroff start
 }

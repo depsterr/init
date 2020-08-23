@@ -1,0 +1,19 @@
+#!/bin/sh
+
+. /usr/lib/ushi/libushi
+
+case "$1" in
+    start)
+        log "Sending TERM signal to all processes..."; {
+            kall 15
+            sleep 2
+        }
+
+        log "Sending KILL signal to all processes..."; {
+            kall 9
+        }
+    ;;
+    
+    stop)
+    ;;
+esac
