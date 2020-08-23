@@ -14,3 +14,6 @@ kall: src/kall.c
 install: all
 	cp -r bin/*    ${BINDIR}
 	cp -r lib/ushi ${LIBDIR}
+
+uninstall:
+	rm -rf ${BINDIR}/kall ${BINDIR}/kpow ${BINDIR}/uinit ${BINDIR}/upoweroff ${BINDIR}/ureboot ${BINDIR}/ushi ${LIBDIR}/ushi
