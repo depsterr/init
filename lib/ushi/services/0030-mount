@@ -1,0 +1,17 @@
+#!/bin/sh
+
+. /usr/lib/ushi/libushi
+
+case "$1" in
+    start)
+        log "Mounting all local filesystems..."; {
+            mount -a || exit 1
+        }
+
+        log "Enabling swap..."; {
+            swapon -a || exit 1
+        }
+    ;;
+    stop)
+    ;;
+esac

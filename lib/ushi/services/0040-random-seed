@@ -1,0 +1,20 @@
+#!/bin/sh
+
+. /usr/lib/ushi/libushi
+
+seed=/var/lib/init/random-seed
+
+case $1 in
+    start)
+        mkdir -p "${seed%/*}" || {
+            log "Warning: Failed to create random seed directory."
+            exit 1
+        }
+
+        dd count=1 bs=512 if=/dev/urandom of="$seed" >/dev/null 2>&1
+    ;;
+
+    stop)
+        [ -f "$seed" ] && cat "$seed" > /dev/urandom
+    ;;
+esac

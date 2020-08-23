@@ -2,25 +2,30 @@ ushi (usable shell init) is an init system forked from kisslinux init system
 
 WIP, do not attempt to use yet
 
--bin
-|-init        : symlink to ../lib/ushi/init
-|-ushi        : ushi service manager
-|-kall.c      : c program for killing all process (used by init)
-|-kpow.c      : c program for powering of the kernel
-|-poweroff    : poweroff command for ushi
-\-reboot      : reboot command for ushi
-
--lib
-\-ushi
- |-init       : init, pid 1
- |-libushi    : library loaded by init, this might get removed / revamped
- |-services   : directory for the all the services
- |\-TODO
- \-enabled    : directory runlevel directories with symlinks to enabled services
-  |-sysinit   : scripts 
-  |-boot      : scripts 
-  |-default   : scripts 
-  |-post      : scripts 
-  |-powerdown : scripts 
-  |-poweroff  : scripts 
-  \-reboot    : scripts 
+|--bin
+| |--init        : symlink to ../lib/ushi/init
+| |--ushi        : ushi service manager
+| |--kall.c      : c program for killing all process
+| |--kpow.c      : c program for powering of the kernel
+| |--poweroff    : poweroff command for ushi
+| \--reboot      : reboot command for ushi
+|
+\--lib
+  \--ushi
+    |--init       : init, pid 1
+    |--libushi    : library loaded by init and services
+    |--services   : directory for the all the services
+    \--runlevels  : runlevel directories with symlinks to enabled services
+      |-sysinit   : services that start the system, do not add services
+      |                 here unless you know what you're doing.
+      |-boot      : services that start after the system is ready, this is 
+      |                 the runlevel most user scripts will go in. these
+      |                 services are also stopped before powering down.
+      |-powerdown : services that start before the system either powers
+      |                 off or reboots. good place for user scripts.
+      |-poweroff  : services that start as the system is powering off,
+      |                 do not add services here unless you know what
+      |                 you are doing.
+      \-reboot    : services that start as the system is rebooting, do
+                        not add services here unless you know what you
+                        are doing.

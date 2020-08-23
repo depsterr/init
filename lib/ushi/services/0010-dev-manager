@@ -1,0 +1,42 @@
+#!/bin/sh
+
+. /usr/lib/ushi/libushi
+
+case "$1" in
+    start)
+        log "Starting device manager..."; {
+            if command -v udevd >/dev/null; then
+                log "Starting udev..."
+
+                udevd -d
+                udevadm trigger -c add -t subsystems
+                udevadm trigger -c add -t devices
+                udevadm settle
+
+            elif command -v mdev >/dev/null; then
+                log "Starting mdev..."
+
+                mdev -s
+                mdev -df &
+                echo $! > /run/mdev.pid
+            fi
+        }
+    ;;
+    stop)
+        log "Killing device manager..."; {
+            if command -v udevd >/dev/null; then
+                udevadm control --exit
+
+            elif [ -r /run/mdev.pid ]; then
+                kill "$(cat /run/mdev.pid)"
+
+                # Try to set the hotplug script to mdev.
+                # This will silently fail if unavailable.
+                #
+                # The user should then run the mdev service
+                # to enable hotplugging.
+                command -v mdev > /proc/sys/kernel/hotplug
+            fi 2>/dev/null
+        }
+    ;;
+esac

@@ -1,0 +1,25 @@
+#!/bin/sh
+
+. /usr/lib/ushi/libushi
+
+case "$1" in
+    start)
+        log "Remounting rootfs as read-only..."; {
+                mount -o remount,ro / || exit 1
+        }
+
+        log "Checking filesystems..."; {
+            fsck -ATat noopts=_netdev
+
+            # It can't be assumed that success is 0
+            # and failure is > 0.
+            [ $? -gt 1 ] && exit 1
+        }
+
+        log "Mounting rootfs as read-write..."; {
+            mount -o remount,rw / || sos
+        }
+    ;;
+    stop)
+    ;;
+esac

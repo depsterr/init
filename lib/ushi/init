@@ -1,46 +1,44 @@
 #!/bin/sh
 [ $$ -eq 1 ] || exit 1
-[ -f /etc/rc.conf ] . /etc/ushi.conf
+. /usr/lib/ushi/libushi
 
-sos() {
-    printf "Encountered an error during the boot process, dropping to shell.
-When you're done run exit to continue the boot process.
-"
-    /bin/sh
-}
-
-run_levels() {
-    fail="$1"
-    shift
-    for level in $*; do
-        for file in "/usr/lib/ushi/enabled/$level"/*; do
-            [ -x "$file" ] && {
-                log "Running service ${file##*/}"
-                "$file" || { 
-                    log "FAILED"
-                    "$fail"
-                }
+# 1: runlevel
+# 2: command
+run_level() {
+    level="$1"
+    cmd="$2"
+    for file in "/usr/lib/ushi/runlevels/$level"/*; do
+        [ -x "$file" ] && {
+            log "Starting service ${file##*/}"
+            "$file" "$1" || { 
+                log "FAILED"
+                [ "$level" = boot ] && sos
             }
-        done
+        }
     done
 }
 
-poweroff() {
-    run_levels continue powerdown poweroff
-}
-
-reboot() {
-    run_levels continue powerdown reboot
-}
-
 boot() {
-    run_levels sos sysinit boot default post
+    run_level sysinit start
+    run_level boot start
+}
+
+_reboot() {
+    run_level boot stop
+    run_level powerdown start
+    run_level reboot start
+}
+
+_poweroff() {
+    run_level boot stop
+    run_level powerdown start
+    run_level poweroff start
 }
 
 boot
 
-trap poweroff USR1
-trap reboot INT
+trap _poweroff USR1
+trap _reboot INT
 
 while :; do
     sleep 86400
